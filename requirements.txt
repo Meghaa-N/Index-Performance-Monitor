@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+duckdb
+redis
+pandas
+yfinance
+openpyxl
+requests
+lxml
