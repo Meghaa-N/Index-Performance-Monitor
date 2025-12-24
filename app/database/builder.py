@@ -1,6 +1,5 @@
 """
-This file contains functions to orchestrate historical data caching into the databases.
-This is a one time execution to populate the database tables with historical data.
+This script is designed as a one-time bootstrap utility to populate the database with historical price and metadata required for initial index construction. It is not part of the API flow and is intended to be executed manually only during the initial system setup.
 """
 
 from app.database.db_manipulation import (
