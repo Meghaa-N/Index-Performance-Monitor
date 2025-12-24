@@ -1,4 +1,9 @@
--- Active: 1766261975522@@127.0.0.1@3306
+/*
+This file contains reference SQL used to define the database schema.
+It is intended for documentation and bootstrap purposes only and is not executed
+as part of the API runtime workflow.
+*/
+
 CREATE TABLE IF NOT EXISTS ticker (
     ticker VARCHAR PRIMARY KEY,
     company_name VARCHAR NOT NULL,
