@@ -15,6 +15,26 @@ It supports historical index construction, performance analytics, composition ch
 | Batch Scheduling | Linux `cron` (inside Docker) |
 | Containerization | Docker + Docker Compose      |
 
+### Data Source Evaluation
+
+Two market data providers were evaluated before selecting the final ingestion source.
+
+| Feature                     | Yahoo Finance (`yfinance`)        | Polygon.io                           |
+| --------------------------- | ---------------------------       | -------------------------------      |
+| API Cost                    | Free                              | Free tier severely rate-limited      |
+| Rate Limits                 | No enforced public limits         | 5 requests / minute                  |
+| Batch Download Support      | Yes (multi-ticker download)       | No (per-ticker endpoints)            |
+| Historical Coverage         | Yes                               | Yes                                  |
+| Market Cap Availability     | Available (no historical support) | Available (supports historical data) |
+| Authentication              | Not required                      | API key required                |
+| Ease of Integration         | Very easy                         | Moderate                        |
+| Reliability for Daily Batch | High                              | Limited by throttling           |
+
+
+Polygon provides better long-term maintenance, structured endpoints and enhanced features. However, the free tier rate limits (5 requests per minute) make it impractical to fetch data for 100 stocks daily without upgrading to a paid plan.
+Yahoo Finance supports batch downloads for multiple tickers in a single request and does not enforce hard public rate limits, making it more suitable for daily index rebalancing workloads at zero cost.
+Therefore, Yahoo Finance was selected as the ingestion source for this project.
+
 ### Project Structure
 ```text
 app/
@@ -127,8 +147,13 @@ cumulative_return	DOUBLE
 
 ### Production / Scaling Improvements
 
-* Add circuit-breaker and retries for Yahoo Finance API failures
+- This project currently uses Yahoo Finance for market data (see *Data Source Evaluation* section). Yahoo does not provide historical outstanding share counts, so the latest available share count is stored as metadata and reused for historical market cap computation. Since outstanding shares change infrequently, this approximation is acceptable for this assignment. In a production system, this can be enhanced by periodically refreshing share counts or using a paid data provider for accurate historical values.
 
-* Add performance charts and dashboards
+- Introduce circuit breakers and automatic retries around external API calls to handle transient failures.
 
-* Add structured logging and monitoring (Grafana)
+- The current cron-based batch job is sufficient for daily ingestion. If ingestion frequency or data volume increases significantly, this can be extended into a distributed scheduling system while keeping the same ingestion logic.
+
+- Add structured logging and system metrics to improve observability and failure diagnosis (like Grafana or Prometheus).
+
+- Add visualization support (charts and dashboards) for tracking index performance trends.
+
